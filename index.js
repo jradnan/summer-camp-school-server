@@ -28,9 +28,14 @@ async function run() {
     await client.connect();
 
     const classesCollection = client.db("photography").collection("courses");
+    const instructorsCollection = client.db("photography").collection("instructors");
 
     app.get('/courses',  async (req, res) => {
         const result = await classesCollection.find().toArray();
+        res.send(result)
+    });
+    app.get('/instructors',  async (req, res) => {
+        const result = await instructorsCollection.find().toArray();
         res.send(result)
     });
 
