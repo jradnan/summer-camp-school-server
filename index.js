@@ -60,3 +60,5 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
     console.log(`port is running at ${port}`);
 })
+
+// "POST", "PATCH", "DELETE", "OPTIONS", "PUT"
