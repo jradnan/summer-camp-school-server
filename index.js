@@ -29,6 +29,21 @@ async function run() {
 
     const classesCollection = client.db("photography").collection("courses");
     const instructorsCollection = client.db("photography").collection("instructors");
+    const usersCollection = client.db("photography").collection("users");
+
+
+    app.post('/users', async(req, res)=>{
+      const user = req.body;
+      console.log(user);
+      const query = {email: user.email};
+      const existingUser =await usersCollection.findOne(query);
+      console.log("existing user", existingUser);
+      if(existingUser){
+        return res.send({message:'user already exist'})
+      }
+      const result =await usersCollection.insertOne(user);
+      res.send(result)
+    })
 
     app.get('/courses',  async (req, res) => {
         const result = await classesCollection.find().toArray();
