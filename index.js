@@ -1,4 +1,4 @@
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -29,32 +29,61 @@ async function run() {
 
     const classesCollection = client.db("photography").collection("courses");
     const instructorsCollection = client.db("photography").collection("instructors");
+    const cartCollection = client.db("photography").collection("carts");
     const usersCollection = client.db("photography").collection("users");
 
-    app.get('/users',  async (req, res) => {
+
+    // users
+    app.get('/users', async (req, res) => {
       const result = await usersCollection.find().toArray();
       res.send(result)
-  });
-    app.post('/users', async(req, res)=>{
+    });
+    app.post('/users', async (req, res) => {
       const user = req.body;
       console.log(user);
-      const query = {email: user.email};
-      const existingUser =await usersCollection.findOne(query);
+      const query = { email: user.email };
+      const existingUser = await usersCollection.findOne(query);
       console.log("existing user", existingUser);
-      if(existingUser){
-        return res.send({message:'user already exist'})
+      if (existingUser) {
+        return res.send({ message: 'user already exist' })
       }
-      const result =await usersCollection.insertOne(user);
+      const result = await usersCollection.insertOne(user);
       res.send(result)
     })
 
-    app.get('/courses',  async (req, res) => {
-        const result = await classesCollection.find().toArray();
-        res.send(result)
+
+    // carts
+    app.get('/carts', async (req, res) => {
+      const email = req.query.email;
+      console.log(email);
+      if (!email) {
+        res.send([])
+      }
+      const query = { email: email };
+      const result = await cartCollection.find(query).toArray();
+      res.send(result)
+    })
+    app.post('/carts', async (req, res) => {
+      const courseItem = req.body;
+      const result = await cartCollection.insertOne(courseItem);
+      res.send(result)
+    })
+    app.delete('/carts/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await cartCollection.deleteOne(query);
+      res.send(result)
+
+    })
+
+
+    app.get('/courses', async (req, res) => {
+      const result = await classesCollection.find().toArray();
+      res.send(result)
     });
-    app.get('/instructors',  async (req, res) => {
-        const result = await instructorsCollection.find().toArray();
-        res.send(result)
+    app.get('/instructors', async (req, res) => {
+      const result = await instructorsCollection.find().toArray();
+      res.send(result)
     });
 
     // Send a ping to confirm a successful connection
@@ -70,13 +99,13 @@ run().catch(console.dir);
 
 
 app.get('/', (req, res) => {
-    res.send('camera is open')
+  res.send('camera is open')
 })
 
 
 
 app.listen(port, () => {
-    console.log(`port is running at ${port}`);
+  console.log(`port is running at ${port}`);
 })
 
 // "POST", "PATCH", "DELETE", "OPTIONS", "PUT"
