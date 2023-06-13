@@ -44,6 +44,7 @@ async function run() {
     // await client.connect();
 
     const classesCollection = client.db("photography").collection("courses");
+    const classCollection = client.db("photography").collection("classes");
     const instructorsCollection = client.db("photography").collection("instructors");
     const cartCollection = client.db("photography").collection("carts");
     const usersCollection = client.db("photography").collection("users");
@@ -75,11 +76,11 @@ async function run() {
 
 
 
-    app.get('/users/admin/:email', verifyJWT,  async (req, res) => {
+    app.get('/users/admin/:email', verifyJWT, async (req, res) => {
       const email = req.params.email;
 
       if (req.decoded.email !== email) {
-          res.send({ admin: false })
+        res.send({ admin: false })
       }
 
 
@@ -87,7 +88,7 @@ async function run() {
       const user = await usersCollection.findOne(query);
       const result = { admin: user?.role === 'admin' };
       res.send(result);
-  })
+    })
 
     app.patch('/users/admin/:id', async (req, res) => {
       const id = req.params.id;
@@ -104,11 +105,11 @@ async function run() {
 
 
 
-    app.get('/users/instructor/:email', verifyJWT,  async (req, res) => {
+    app.get('/users/instructor/:email', verifyJWT, async (req, res) => {
       const email = req.params.email;
 
       if (req.decoded.email !== email) {
-          res.send({ admin: false })
+        res.send({ admin: false })
       }
 
 
@@ -116,7 +117,7 @@ async function run() {
       const user = await usersCollection.findOne(query);
       const result = { admin: user?.role === 'instructor' };
       res.send(result);
-  })
+    })
 
     app.patch('/users/instructor/:id', async (req, res) => {
       const id = req.params.id;
@@ -133,7 +134,7 @@ async function run() {
 
 
     // carts
-    app.get('/carts',verifyJWT, async (req, res) => {
+    app.get('/carts', verifyJWT, async (req, res) => {
       const email = req.query.email;
       console.log(email);
       if (!email) {
@@ -162,6 +163,19 @@ async function run() {
     })
 
 
+
+
+    app.post('/classes', verifyJWT, async (req, res) => {
+      const newItem = req.body;
+      const result = await classCollection.insertOne(newItem);
+      res.send(result)
+    })
+
+
+    app.get('/classes', async (req, res) => {
+      const result = await classCollection.find().toArray();
+      res.send(result)
+    });
     app.get('/courses', async (req, res) => {
       const result = await classesCollection.find().toArray();
       res.send(result)
